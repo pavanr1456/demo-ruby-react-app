@@ -58,10 +58,10 @@ function NewPurchaseRequisition() {
               required
             >
               <option value="">Select Type</option>
-              <option value="NB">NB</option>
-              <option value="NBS">NBS</option>
-              <option value="RV">RV</option>
-              <option value="ZNB">ZNB</option>
+              <option value="NB">NB(Standard Purchase Requisition)</option>
+              <option value="NBS">NBS(Standard Purchase Requisition)</option>
+              <option value="RV">RV(Outline Agreement)</option>
+              <option value="ZNB">ZNB(Custom Purchase Requisition)</option>
             </select>
             {errors.pr_type && (
               <p className="text-red-500 text-sm">{errors.pr_type[0]}</p>
