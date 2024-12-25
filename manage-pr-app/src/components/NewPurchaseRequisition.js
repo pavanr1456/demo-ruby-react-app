@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-const CREATE_REQ_API_URL = "http://localhost:3000/api/v1/purchase_requisitions";
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
+const CREATE_REQ_API_URL = BASE_URL + "/api/v1/purchase_requisitions";
 
 function NewPurchaseRequisition() {
   const [prType, setPrType] = useState("");

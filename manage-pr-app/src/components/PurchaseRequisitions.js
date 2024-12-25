@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { format } from 'date-fns';
 import { useNavigate } from "react-router-dom";
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
-
-const GET_REQ_API_URL = "http://localhost:3000/api/v1/purchase_requisitions";
+const GET_REQ_API_URL = BASE_URL+ "/api/v1/purchase_requisitions";
 
 
 
