@@ -54,6 +54,7 @@ function PurchaseRequisitions() {
               <th className="border border-gray-300 px-4 py-2">Type</th>
               <th className="border border-gray-300 px-4 py-2">Description</th>
               <th className="border border-gray-300 px-4 py-2">Created At</th>
+              <th className="border border-gray-300 px-4 py-2">Updated At</th>
               <th className="border border-gray-300 px-4 py-2">Actions</th>
             </tr>
           </thead>
@@ -61,9 +62,15 @@ function PurchaseRequisitions() {
             {requisitions.map((row) => (
               <tr key={row.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{row.id}</td>
-                <td className="border border-gray-300 px-4 py-2">{row.pr_type}</td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {row.pr_type}{" "}
+                  {row.pr_type_desc && (
+                    <span className="text-sm text-gray-500">({row.pr_type_desc})</span>
+                  )}
+                </td>
                 <td className="border border-gray-300 px-4 py-2">{row.description}</td>
                 <td className="border border-gray-300 px-4 py-2">{formatDate(row.created_at)}</td>
+                <td className="border border-gray-300 px-4 py-2">{formatDate(row.updated_at)}</td>
                 <td className="border border-gray-300 px-4 py-2">
                   <button
                     className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"

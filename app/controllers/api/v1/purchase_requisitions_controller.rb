@@ -18,7 +18,8 @@ class Api::V1::PurchaseRequisitionsController < ApplicationController
     @purchase_requisition = PurchaseRequisition.new(purchase_requisition_params)
 
     if @purchase_requisition.save
-      render json: @purchase_requisition, status: :created, location: @purchase_requisition
+      logger.debug "PurchaseRequisition created with ID: #{@purchase_requisition.id}"
+      render json: @purchase_requisition, status: :created, location: api_v1_purchase_requisition_url(@purchase_requisition)
     else
       render json: @purchase_requisition.errors, status: :unprocessable_entity
     end
@@ -46,6 +47,6 @@ class Api::V1::PurchaseRequisitionsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def purchase_requisition_params
-      params.expect(purchase_requisition: [ :type, :description ])
+      params.expect(purchase_requisition: [ :pr_type, :description ])
     end
 end

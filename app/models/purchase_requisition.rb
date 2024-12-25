@@ -1,2 +1,33 @@
 class PurchaseRequisition < ApplicationRecord
+  # Only allow specific type
+  validates :pr_type, inclusion: { in: [ "NB", "NBS", "RV", "ZNB" ], message: "Undefined purchase requisition type" }
+  validate :pr_type_not_znbs
+  validates :description, length: { minimum: 10, message: "Description must be at least 10 characters long" }
+
+  # Auto fill description
+  before_save :set_pr_type_desc
+
+
+  private
+  def pr_type_not_znbs
+    if pr_type == "ZNB"
+      errors.add(:pr_type, "You are not authorized to create a requisition of this type")
+    end
+  end
+
+  def set_pr_type_desc
+    # Set pr_type_desc based on pr_type value
+    case pr_type
+    when "NB"
+      self.pr_type_desc = "Standard Purchase Requisition"
+    when "NBS"
+      self.pr_type_desc = "Standard Purchase Requisition"
+    when "RV"
+      self.pr_type_desc = "Outline Agreement"
+    when "ZNB"
+      self.pr_type_desc = "Custom Purchase Requisition"
+    else
+      self.pr_type_desc = "Unknown"
+    end
+  end
 end
