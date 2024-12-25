@@ -4,7 +4,7 @@ import PurchaseRequisitions from './components/PurchaseRequisitions';
 function App() {
   return (
     <div className="App">
-      <h1>Hello</h1>
+      <h1>Manage Purchase Requisition</h1>
       <PurchaseRequisitions></PurchaseRequisitions>
     </div>
   );
