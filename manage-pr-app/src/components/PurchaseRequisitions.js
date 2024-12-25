@@ -7,6 +7,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { Paper } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const GET_REQ_API_URL = "http://localhost:3000/api/v1/purchase_requisitions";
 
@@ -16,6 +17,7 @@ function getAllRequisitions() {
 
 function PurchaseRequisitions() {
   const [requisitions, setRequisitions] = useState([]);
+  const navigate = useNavigate();
   useEffect(() => {
     let mounted = true;
     getAllRequisitions().then((reqs) => {
@@ -49,6 +51,7 @@ function PurchaseRequisitions() {
                 <TableCell align="right">Type</TableCell>
                 <TableCell align="right">Description</TableCell>
                 <TableCell align="right">Created at</TableCell>
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -63,6 +66,14 @@ function PurchaseRequisitions() {
                   <TableCell align="right">{row.pr_type}</TableCell>
                   <TableCell align="right">{row.description}</TableCell>
                   <TableCell align="right">{row.created_at}</TableCell>
+                  <TableCell align="right">
+                <button
+                  onClick={() => navigate(`/pr/${row.id}`)}
+                  style={{ cursor: "pointer", padding: "5px", background: "#1976d2", color: "#fff", border: "none", borderRadius: "4px" }}
+                >
+                  View/Edit
+                </button>
+              </TableCell>
                 </TableRow>
               ))}
             </TableBody>

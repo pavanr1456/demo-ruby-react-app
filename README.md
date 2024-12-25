@@ -7,6 +7,7 @@ UI is built using React.
 
 Production build for react is done via npm run build --prefix manage-pr-app
 move built file to public folder using  rsync -av --ignore-existing manage-pr-app/build/ public/
+`npm run build --prefix manage-pr-app && rsync -av --ignore-existing manage-pr-app/build/ public/`
 
 every change in UI should be built and committed so it is served in Render.
 Update service in https://dashboard.render.com/web/srv-ctlpha52ng1s73b86ctg/deploys/dep-ctlq3mrtq21c73f4kmh0 
