@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import { format } from 'date-fns';
 
 const GET_PR_API_URL = "http://localhost:3000/api/v1/purchase_requisitions";
+
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return format(date, 'MMMM dd, yyyy HH:mm:ss'); // Example format: 'December 22, 2024 09:37:11'
+};
 
 function PurchaseRequisitionDetails() {
   const { id } = useParams();
@@ -25,7 +31,7 @@ function PurchaseRequisitionDetails() {
         <p><strong>ID:</strong> {requisition.id}</p>
         <p><strong>Type:</strong> {requisition.pr_type}</p>
         <p><strong>Description:</strong> {requisition.description}</p>
-        <p><strong>Created At:</strong> {requisition.created_at}</p>
+        <p><strong>Created At:</strong> {formatDate(requisition.created_at)}</p>
       </div>
 
       <button

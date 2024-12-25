@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-// import Table from "@mui/material/Table";
-// import TableBody from "@mui/material/TableBody";
-// import TableCell from "@mui/material/TableCell";
-// import TableContainer from "@mui/material/TableContainer";
-// import TableHead from "@mui/material/TableHead";
-// import TableRow from "@mui/material/TableRow";
-// import { Paper } from "@mui/material";
+import { format } from 'date-fns';
 import { useNavigate } from "react-router-dom";
 
 
 const GET_REQ_API_URL = "http://localhost:3000/api/v1/purchase_requisitions";
+
+
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return format(date, 'MMMM dd, yyyy HH:mm:ss'); // Example format: 'December 22, 2024 09:37:11'
+};
 
 function getAllRequisitions() {
   return axios.get(GET_REQ_API_URL).then((res) => res.data);
@@ -62,7 +63,7 @@ function PurchaseRequisitions() {
                 <td className="border border-gray-300 px-4 py-2">{row.id}</td>
                 <td className="border border-gray-300 px-4 py-2">{row.pr_type}</td>
                 <td className="border border-gray-300 px-4 py-2">{row.description}</td>
-                <td className="border border-gray-300 px-4 py-2">{row.created_at}</td>
+                <td className="border border-gray-300 px-4 py-2">{formatDate(row.created_at)}</td>
                 <td className="border border-gray-300 px-4 py-2">
                   <button
                     className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
