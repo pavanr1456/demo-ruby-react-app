@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import { Paper } from "@mui/material";
+// import Table from "@mui/material/Table";
+// import TableBody from "@mui/material/TableBody";
+// import TableCell from "@mui/material/TableCell";
+// import TableContainer from "@mui/material/TableContainer";
+// import TableHead from "@mui/material/TableHead";
+// import TableRow from "@mui/material/TableRow";
+// import { Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+
 
 const GET_REQ_API_URL = "http://localhost:3000/api/v1/purchase_requisitions";
 
@@ -31,54 +32,49 @@ function PurchaseRequisitions() {
   }, []);
 
   return (
-    <div>
-      {/* <div>
-        {requisitions.map((req) => {
-          return (
-            <div key={req.id}>
-              Purchase Requisition with ID {req.id}, type: {req.pr_type} and
-              description: "{req.description}" was created at {req.created_at}{" "}
-            </div>
-          );
-        })}
-      </div> */}
-      <div>
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Purchase Requisition ID</TableCell>
-                <TableCell align="right">Type</TableCell>
-                <TableCell align="right">Description</TableCell>
-                <TableCell align="right">Created at</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {requisitions.map((row) => (
-                <TableRow
-                  key={row.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    {row.id}
-                  </TableCell>
-                  <TableCell align="right">{row.pr_type}</TableCell>
-                  <TableCell align="right">{row.description}</TableCell>
-                  <TableCell align="right">{row.created_at}</TableCell>
-                  <TableCell align="right">
-                <button
-                  onClick={() => navigate(`/pr/${row.id}`)}
-                  style={{ cursor: "pointer", padding: "5px", background: "#1976d2", color: "#fff", border: "none", borderRadius: "4px" }}
-                >
-                  View/Edit
-                </button>
-              </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+    <div className="p-8">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Purchase Requisitions</h1>
+        <button
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          onClick={() => navigate("/pr/new")}
+        >
+          New Purchase Requisition
+        </button>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="table-auto w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-4 py-2">ID</th>
+              <th className="border border-gray-300 px-4 py-2">Type</th>
+              <th className="border border-gray-300 px-4 py-2">Description</th>
+              <th className="border border-gray-300 px-4 py-2">Created At</th>
+              <th className="border border-gray-300 px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {requisitions.map((row) => (
+              <tr key={row.id} className="hover:bg-gray-50">
+                <td className="border border-gray-300 px-4 py-2">{row.id}</td>
+                <td className="border border-gray-300 px-4 py-2">{row.pr_type}</td>
+                <td className="border border-gray-300 px-4 py-2">{row.description}</td>
+                <td className="border border-gray-300 px-4 py-2">{row.created_at}</td>
+                <td className="border border-gray-300 px-4 py-2">
+                  <button
+                    className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                    onClick={() => navigate(`/pr/${row.id}`)}
+                  >
+                    View/Edit
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

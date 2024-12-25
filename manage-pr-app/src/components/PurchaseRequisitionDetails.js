@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
 const GET_PR_API_URL = "http://localhost:3000/api/v1/purchase_requisitions";
 
 function PurchaseRequisitionDetails() {
@@ -18,26 +19,18 @@ function PurchaseRequisitionDetails() {
   if (!requisition) return <div>Loading...</div>;
 
   return (
-    <div>
-      <h1>Purchase Requisition Details</h1>
-      <p>ID: {requisition.id}</p>
-      <p>Type: {requisition.pr_type}</p>
-      <p>Description: {requisition.description}</p>
-      <p>Created At: {requisition.created_at}</p>
-      {/* Add update functionality here */}
+    <div className="p-8">
+      <div className="bg-white shadow-md rounded p-6">
+        <h1 className="text-2xl font-bold mb-4">Purchase Requisition Details</h1>
+        <p><strong>ID:</strong> {requisition.id}</p>
+        <p><strong>Type:</strong> {requisition.pr_type}</p>
+        <p><strong>Description:</strong> {requisition.description}</p>
+        <p><strong>Created At:</strong> {requisition.created_at}</p>
+      </div>
 
-      {/* Back Button */}
       <button
-        onClick={() => navigate(-1)} // Navigate back to the previous page
-        style={{
-          padding: "10px 20px",
-          background: "#f44336",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          marginTop: "20px",
-        }}
+        className="mt-6 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+        onClick={() => navigate(-1)}
       >
         Back to List
       </button>
