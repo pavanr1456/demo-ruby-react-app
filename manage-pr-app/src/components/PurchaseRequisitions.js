@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { TextField } from "@mui/material"; // Import Material-UI TextField component
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
-const GET_REQ_API_URL = BASE_URL+ "/api/v1/purchase_requisitions";
-
-
+const GET_REQ_API_URL = BASE_URL + "/api/v1/purchase_requisitions";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return format(date, 'MMMM dd, yyyy HH:mm:ss'); // Example format: 'December 22, 2024 09:37:11'
+  return format(date, "MMMM dd, yyyy HH:mm:ss"); // Example format: 'December 22, 2024 09:37:11'
 };
 
 function getAllRequisitions() {
@@ -19,7 +18,9 @@ function getAllRequisitions() {
 
 function PurchaseRequisitions() {
   const [requisitions, setRequisitions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); // State to store search query
   const navigate = useNavigate();
+
   useEffect(() => {
     let mounted = true;
     getAllRequisitions().then((reqs) => {
@@ -32,6 +33,13 @@ function PurchaseRequisitions() {
     };
   }, []);
 
+  const filteredRequisitions = requisitions.filter((req) =>
+    Object.values(req)
+      .join(" ")
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="p-8">
       {/* Header */}
@@ -43,6 +51,17 @@ function PurchaseRequisitions() {
         >
           New Purchase Requisition
         </button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-4">
+        <TextField
+          label="Search"
+          variant="outlined"
+          fullWidth
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
       {/* Table */}
@@ -59,7 +78,7 @@ function PurchaseRequisitions() {
             </tr>
           </thead>
           <tbody>
-            {requisitions.map((row) => (
+            {filteredRequisitions.map((row) => (
               <tr key={row.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{row.id}</td>
                 <td className="border border-gray-300 px-4 py-2">
