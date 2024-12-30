@@ -10,7 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_25_182912) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_30_075334) do
+  create_table "purchase_requisition_items", force: :cascade do |t|
+    t.integer "purchase_requisition_id", null: false
+    t.string "item_name", null: false
+    t.integer "quantity", null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.decimal "total_price", precision: 10, scale: 2, null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["purchase_requisition_id"], name: "index_purchase_requisition_items_on_purchase_requisition_id"
+  end
+
   create_table "purchase_requisitions", force: :cascade do |t|
     t.string "pr_type"
     t.string "description"
@@ -18,4 +30,6 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_25_182912) do
     t.datetime "updated_at", null: false
     t.string "pr_type_desc"
   end
+
+  add_foreign_key "purchase_requisition_items", "purchase_requisitions"
 end

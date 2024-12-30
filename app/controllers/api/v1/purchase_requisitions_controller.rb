@@ -47,6 +47,10 @@ class Api::V1::PurchaseRequisitionsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def purchase_requisition_params
-      params.expect(purchase_requisition: [ :pr_type, :description ])
+      params.require(:purchase_requisition).permit(
+      :pr_type,
+      :description,
+      purchase_requisition_items_attributes: [ :item_name, :quantity, :unit_price, :total_price, :notes ]
+    )
     end
 end

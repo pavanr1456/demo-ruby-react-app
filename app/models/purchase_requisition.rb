@@ -1,4 +1,6 @@
 class PurchaseRequisition < ApplicationRecord
+  has_many :purchase_requisition_items, dependent: :destroy
+  validates :purchase_requisition_items, presence: { message: "must have at least one item" }
   # Only allow specific type
   validates :pr_type, inclusion: { in: [ "NB", "NBS", "RV", "ZNB" ], message: "Undefined purchase requisition type" }
   validate :pr_type_not_znbs
@@ -7,6 +9,7 @@ class PurchaseRequisition < ApplicationRecord
   # Auto fill description
   before_save :set_pr_type_desc
 
+  accepts_nested_attributes_for :purchase_requisition_items
 
   private
   def pr_type_not_znbs

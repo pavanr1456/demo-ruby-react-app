@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      resources :purchase_requisitions
+      resources :purchase_requisitions do
+        resources :items, controller: "purchase_requisition_items"
+      end
     end
   end
 
