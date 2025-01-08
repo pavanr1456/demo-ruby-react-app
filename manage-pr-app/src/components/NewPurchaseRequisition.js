@@ -11,7 +11,7 @@ const CREATE_REQ_API_URL = BASE_URL + "/api/v1/purchase_requisitions";
 function NewPurchaseRequisition() {
   const [prType, setPrType] = useState("");
   const [description, setDescription] = useState("");
-  const [items, setItems] = useState([{ item_name: "", quantity: 1, unit_price: 0, notes: "" }]);
+  const [items, setItems] = useState([{ item_name: "", quantity: 1, unit_price: 0,total_price: 0, notes: "" }]);
   const [errors, setErrors] = useState({});
   const [generalErrors, setGeneralErrors] = useState([]);
   const [itemErrors, setItemErrors] = useState([]);
@@ -20,6 +20,11 @@ function NewPurchaseRequisition() {
   const handleItemChange = (index, e) => {
     const updatedItems = [...items];
     updatedItems[index][e.target.name] = e.target.value;
+    if (e.target.name === "quantity" || e.target.name === "unit_price") {
+      const quantity = parseFloat(updatedItems[index].quantity) || 0;
+      const unitPrice = parseFloat(updatedItems[index].unit_price) || 0;
+      updatedItems[index].total_price = quantity * unitPrice;
+    }
     setItems(updatedItems);
   };
 
@@ -129,7 +134,7 @@ function NewPurchaseRequisition() {
             headerRow={<TableHeaderRow sticky><TableHeaderCell minWidth="200px" width="200px"><span>Item Name</span></TableHeaderCell>
               <TableHeaderCell minWidth="200px"><span>Quantity</span></TableHeaderCell>
               <TableHeaderCell minWidth="200px"><span>Unit Price($)</span></TableHeaderCell>
-              {/* <TableHeaderCell maxWidth="200px" minWidth="100px"><span>Total Price</span></TableHeaderCell> */}
+              <TableHeaderCell maxWidth="200px" minWidth="100px"><span>Total Price</span></TableHeaderCell>
               <TableHeaderCell minWidth="200px"><span>Notes</span></TableHeaderCell>
             </TableHeaderRow>}
           >
@@ -141,7 +146,7 @@ function NewPurchaseRequisition() {
                 </Input></TableCell>
                 <TableCell><Input name="quantity" value={row.quantity} onChange={(event) => handleItemChange(index, event)}></Input></TableCell>
                 <TableCell><Input name="unit_price" value={row.unit_price} onChange={(event) => handleItemChange(index, event)}></Input></TableCell>
-                {/* <TableCell><Input name="total_price" value={row.total_price} onChange={(event) => handleItemChange(index, event)}></Input></TableCell> */}
+                <TableCell><span>${Number(row.total_price || 0).toFixed(2)}</span></TableCell>
                 <TableCell><Input name="notes" value={row.notes} onChange={(event) => handleItemChange(index, event)}></Input> </TableCell>
               </TableRow>
             ))}
