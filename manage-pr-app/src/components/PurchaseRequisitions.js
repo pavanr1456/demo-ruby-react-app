@@ -12,13 +12,15 @@ import {
   TableRow,
   TableCell,
   TableHeaderRow,
-  TableHeaderCell
+  TableHeaderCell,
+  TableSelection
 } from '@ui5/webcomponents-react';
 import { FilterBar } from '@ui5/webcomponents-react';
 import { Page } from '@ui5/webcomponents-react';
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
 const GET_REQ_API_URL = BASE_URL + "/api/v1/purchase_requisitions";
+const DELETE_REQ_API_URL = BASE_URL + "/api/v1/purchase_requisitions/";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -31,6 +33,7 @@ function getAllRequisitions() {
 
 function PurchaseRequisitions() {
   const [requisitions, setRequisitions] = useState([]);
+  const [selected, setSelected] = useState("");
   const [searchQuery, setSearchQuery] = useState(""); // State to store search query
   const navigate = useNavigate();
 
@@ -45,6 +48,20 @@ function PurchaseRequisitions() {
       mounted = false;
     };
   }, []);
+
+  const handleDelete = (id) => {
+    // Make DELETE request to API
+    axios
+      .delete(DELETE_REQ_API_URL + id)
+      .then(() => {
+        getAllRequisitions().then((updatedRequisitions) => {
+          setRequisitions(updatedRequisitions); // Update the state with the new data
+        });
+      })
+      .catch((error) => {
+        console.error("Error deleting requisition:", error);
+      });
+  };
 
   const filteredRequisitions = requisitions.filter((req) =>
     Object.values(req)
@@ -85,6 +102,12 @@ function PurchaseRequisitions() {
         >
           New Purchase Requisition
         </Button>
+        <Button style={{ display: "flex", marginLeft: "5px"}}
+          design="Default"
+          onClick={() => handleDelete(selected)}
+        >
+          Delete
+        </Button>
       </div>
 
       {/* Table */}
@@ -96,6 +119,7 @@ function PurchaseRequisitions() {
             <TableHeaderCell maxWidth="200px" minWidth="100px"><span>Created At</span></TableHeaderCell>
             <TableHeaderCell minWidth="200px"><span>Update At</span></TableHeaderCell>
           </TableHeaderRow>}
+          features={<TableSelection slot="features" mode="single" onChange={(e) => setSelected(e.target.selected)} />}
           onRowClick={(oEvent) => {
             const row = oEvent.detail.row;
             const cells = row.children;
@@ -105,7 +129,7 @@ function PurchaseRequisitions() {
         >
 
           {filteredRequisitions.map((row) => (
-            <TableRow key={row.id} interactive="true">
+            <TableRow rowKey={row.id} key={row.id} interactive="true">
               <TableCell><span>{row.id}</span></TableCell>
               <TableCell><span>{row.pr_type}{" "}
                 {row.pr_type_desc && (
