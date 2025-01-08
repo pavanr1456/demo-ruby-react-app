@@ -16,7 +16,7 @@ import {
 } from '@ui5/webcomponents-react';
 import { FilterBar } from '@ui5/webcomponents-react';
 import { Page } from '@ui5/webcomponents-react';
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
 const GET_REQ_API_URL = BASE_URL + "/api/v1/purchase_requisitions";
 

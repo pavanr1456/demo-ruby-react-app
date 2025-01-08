@@ -4,7 +4,7 @@ import axios from "axios";
 import { format } from "date-fns";
 import { ObjectPage, ObjectPageTitle, ObjectPageSection, ObjectPageSubSection, Button, Breadcrumbs, BreadcrumbsItem, Label, Form, FormItem, Text, Input, Select, Option, TextArea, Table, TableHeaderRow, TableHeaderCell, TableRow, TableCell, BusyIndicator, TableSelection } from '@ui5/webcomponents-react';
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 const GET_PR_API_URL = BASE_URL + "/api/v1/purchase_requisitions";
 const GET_ITEMS_API_URL = (id) => `${BASE_URL}/api/v1/purchase_requisitions/${id}/items`;
 const GET_ITEM_UPDATE_URL = (id, itemId) => `${BASE_URL}/api/v1/purchase_requisitions/${id}/items/${itemId}`;

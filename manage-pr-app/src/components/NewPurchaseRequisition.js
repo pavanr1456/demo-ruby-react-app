@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Bar, Breadcrumbs, BreadcrumbsItem, Button, Form, FormItem, Input, Label, ObjectPage, ObjectPageSection, ObjectPageSubSection, ObjectPageTitle, Option, Select, Table, TableCell, TableHeaderCell, TableHeaderRow, TableRow, TextArea } from "@ui5/webcomponents-react";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 const CREATE_REQ_API_URL = BASE_URL + "/api/v1/purchase_requisitions";
 
 function NewPurchaseRequisition() {
