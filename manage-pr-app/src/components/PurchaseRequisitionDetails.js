@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { format } from "date-fns";
+import { ObjectPage, ObjectPageTitle, ObjectPageSection, ObjectPageSubSection, Button, Breadcrumbs, BreadcrumbsItem, Label, Form, FormItem, Text, Input, Select, Option, TextArea, Table, TableHeaderRow, TableHeaderCell, TableRow, TableCell, BusyIndicator, TableSelection } from '@ui5/webcomponents-react';
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 const GET_PR_API_URL = BASE_URL + "/api/v1/purchase_requisitions";
 const GET_ITEMS_API_URL = (id) => `${BASE_URL}/api/v1/purchase_requisitions/${id}/items`;
+const GET_ITEM_UPDATE_URL = (id, itemId) => `${BASE_URL}/api/v1/purchase_requisitions/${id}/items/${itemId}`;
+const GET_ITEM_CREATE_URL = (id) => `${BASE_URL}/api/v1/purchase_requisitions/${id}/items`;
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -18,13 +21,18 @@ function PurchaseRequisitionDetails() {
   const [requisition, setRequisition] = useState(null);
   const [items, setItems] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isItemEditMode, setIsItemEditMode] = useState(false);
   const [description, setDescription] = useState("");
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [pr_type, setPrType] = useState("");
+  const [currentItemKey, setCurrentItemKey] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [itemErrors, setItemErrors] = useState([]);
 
   useEffect(() => {
     axios.get(`${GET_PR_API_URL}/${id}`).then((res) => {
       setRequisition(res.data);
       setDescription(res.data.description);
+      setPrType(res.data.pr_type);
     });
 
     axios.get(GET_ITEMS_API_URL(id)).then((res) => {
@@ -36,8 +44,12 @@ function PurchaseRequisitionDetails() {
     setIsEditMode((prevMode) => !prevMode);
   };
 
+  const handleToggleItemEditMode = () => {
+    setIsItemEditMode((prevMode) => !prevMode);
+  };
+
   const handleUpdate = () => {
-    const updatedRequisition = { ...requisition, description };
+    const updatedRequisition = { ...requisition, description, pr_type };
     axios
       .put(`${GET_PR_API_URL}/${id}`, updatedRequisition)
       .then((response) => {
@@ -45,155 +57,207 @@ function PurchaseRequisitionDetails() {
         setIsEditMode(false);
       })
       .catch((error) => {
-        console.error("Error updating requisition:", error);
+        if (error.response && error.response.data) {
+          const errorData = error.response.data;
+
+          // Separate general errors and field-specific errors
+          setErrors({
+            pr_type: errorData.pr_type?.length > 0 ? errorData.pr_type[0] : null,
+            description: errorData.description?.length > 0 ? errorData.description[0] : null,
+          });
+        }
       });
   };
 
-  const handleDelete = () => {
-    axios
-      .delete(`${GET_PR_API_URL}/${id}`)
-      .then(() => {
-        navigate("/");
-      })
-      .catch((error) => {
-        console.error("Error deleting requisition:", error);
-      });
+  const handleUpdateItem = () => {
+    const { item_name, quantity, unit_price, total_price, notes } = items.find((item) => item.id === currentItemKey);
+    const changedItem = { item_name, quantity, unit_price, total_price, notes };
+    if (currentItemKey === "100") {
+      axios
+        .post(GET_ITEM_CREATE_URL(requisition.id), changedItem)
+        .then((response) => {
+          setIsItemEditMode((prevMode) => !prevMode);
+          setCurrentItemKey(response.data.id);
+        })
+        .catch((error) => {
+          if (error.response && error.response.data) {
+            const errorData = error.response.data;
+            const itemLevelError = {};
+            itemLevelError[`item_name[${currentItemKey}]`] = errorData.item_name?.length > 0 ? errorData.item_name[0] : null;
+            setItemErrors(itemLevelError);
+          }
+        });
+    } else {
+      axios
+        .put(GET_ITEM_UPDATE_URL(requisition.id, currentItemKey), changedItem)
+        .then((response) => {
+          setIsItemEditMode((prevMode) => !prevMode);
+        })
+        .catch((error) => {
+          if (error.response && error.response.data) {
+            const errorData = error.response.data;
+            const itemLevelError = {};
+            itemLevelError[`item_name[${currentItemKey}]`] = errorData.item_name?.length > 0 ? errorData.item_name[0] : null;
+            setItemErrors(itemLevelError);
+          }
+        });
+    }
   };
 
-  if (!requisition) return <div>Loading...</div>;
+  const hanldeAddItem = () => {
+    setItems([...items, { id: "100", item_name: "", quantity: 1, unit_price: 0, notes: "" }]);
+    setCurrentItemKey("100");
+    handleToggleItemEditMode();
+  };
+
+
+  const handleItemSelection = (oEvent) => {
+    if (Number(oEvent.target.selected) !== currentItemKey) {
+      const selectedItem = items.find((item) => item.id === Number(oEvent.target.selected));
+      selectedItem.oldEntry = { ...selectedItem };
+      setCurrentItemKey(selectedItem.id);
+    }
+  }
+
+  const handleItemChange = (index, e) => {
+    const updatedItems = [...items];
+    updatedItems[index][e.target.name] = e.target.value;
+    setItems(updatedItems);
+  };
+
+  const handleCancelItem = (event) => {
+    const itemEdited = items.find((item) => item.id === currentItemKey);
+    if (itemEdited.id === "100") {
+      const updatedItems = items.filter((item) => item.id !== "100");
+      setItems(updatedItems);
+    } else {
+      const updatedItems = items.map((item) => {
+        if (item.id === currentItemKey) {
+          return item.oldEntry;
+        }
+        return item;
+      });
+      setItems(updatedItems);
+    }
+    setIsItemEditMode((prevMode) => !prevMode);
+    setCurrentItemKey(currentItemKey);
+  };
+
+  if (!requisition) return (<div style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    width: "100vw",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.8)", // Optional: semi-transparent background
+    zIndex: 1000,
+  }}>
+    <BusyIndicator active delay={1} size="L" />
+  </div>);
 
   return (
-    <div className="p-8">
-      {/* Buttons moved to the top */}
-      <div className="flex space-x-6 mb-6">
-        <button
-          className="mr-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-          onClick={handleToggleEditMode}
-        >
-          {isEditMode ? "Cancel" : "Edit"}
-        </button>
-        {isEditMode && (
-          <button
-            className="mr-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-            onClick={handleUpdate}
-          >
-            Update
-          </button>
-        )}
-        <button
-          className="mr-6 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-          onClick={() => setIsDeleteModalOpen(true)}
-        >
-          Delete
-        </button>
-        <button
-          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-          onClick={() => navigate(-1)}
-        >
-          Back to List
-        </button>
-      </div>
-
-      {/* Purchase Requisition Details */}
-      <div className="bg-white shadow-md rounded p-6">
-        <h1 className="text-2xl font-bold mb-4">Purchase Requisition Details</h1>
-        <p>
-          <strong>ID:</strong> {requisition.id}
-        </p>
-        <p>
-          <strong>Type:</strong> {requisition.pr_type}
-          {requisition.pr_type_desc && (
-            <span className="text-sm text-gray-500">
-              ({requisition.pr_type_desc})
-            </span>
-          )}
-        </p>
-        <div>
-          {isEditMode ? (
-            <div>
-              <strong>Description:</strong>
-              <textarea
-                className="w-full mt-2 p-4 border border-gray-300 rounded-md"
-                rows="4"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-          ) : (
-            <p>
-              <strong>Description:</strong> {requisition.description}
-            </p>
-          )}
-        </div>
-        <p>
-          <strong>Created At:</strong> {formatDate(requisition.created_at)}
-        </p>
-        <p>
-          <strong>Updated At:</strong> {formatDate(requisition.updated_at)}
-        </p>
-      </div>
-
-      {/* Items Table */}
-      <div className="bg-white shadow-md rounded p-6 mt-6">
-        <h2 className="text-xl font-bold mb-4">Items</h2>
-        {items.length > 0 ? (
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 px-4 py-2">Item Name</th>
-                <th className="border border-gray-300 px-4 py-2">Quantity</th>
-                <th className="border border-gray-300 px-4 py-2">Unit Price</th>
-                <th className="border border-gray-300 px-4 py-2">Total Price</th>
-                <th className="border border-gray-300 px-4 py-2">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item, index) => (
-                <tr key={index}>
-                  <td className="border border-gray-300 px-4 py-2">{item.item_name}</td>
-                  <td className="border border-gray-300 px-4 py-2">{item.quantity}</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    ${Number(item.unit_price || 0).toFixed(2)}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    ${Number(item.total_price || 0).toFixed(2)}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">{item.notes}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No items available for this requisition.</p>
-        )}
-      </div>
-
-      {/* Delete Confirmation Popup */}
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-md shadow-md max-w-sm w-full">
-            <h2 className="text-xl font-bold mb-4">Are you sure?</h2>
-            <p>
-              Do you really want to delete this purchase requisition? This action cannot be undone.
-            </p>
-            <div className="flex space-x-4 mt-4">
-              <button
-                className="mr-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-                onClick={handleDelete}
-              >
-                Yes, Delete
-              </button>
-              <button
-                className="mr-4 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-                onClick={() => setIsDeleteModalOpen(false)}
-              >
-                Cancel
-              </button>
-            </div>
+    <ObjectPage
+      mode="Default"
+      selectedSectionId="details"
+      style={{
+        height: '1000px'
+      }}
+      titleArea={<ObjectPageTitle breadcrumbs={<Breadcrumbs onItemClick={() => { navigate(-1) }}><BreadcrumbsItem onClick={() => { navigate(-1) }}>Home</BreadcrumbsItem><BreadcrumbsItem> </BreadcrumbsItem></Breadcrumbs>} header={`Purchase Requisition ${requisition.id}`} subHeader={description} ></ObjectPageTitle>}
+    >
+      <ObjectPageSection
+        aria-label="Details"
+        id="details"
+        titleText="Details"
+      >
+        <ObjectPageSubSection titleText="Details" actions={
+          <div style={{ marginLeft: "auto", display: "flex" }}>
+            {isEditMode ? <Button design="Emphasized" onClick={handleUpdate}>Save</Button> : null}
+            <Button design="Transparent" onClick={handleToggleEditMode}>
+              {isEditMode ? "Cancel" : "Edit"}
+            </Button>
           </div>
-        </div>
-      )}
-    </div>
+        }>
+          <Form
+            labelSpan="S12 M12 L12 XL12"
+            layout="S1 M2 L3 XL3"
+          >
+            <FormItem labelContent={<Label showColon>ID</Label>}  >
+              <Text>{requisition.id}</Text>
+            </FormItem>
+            <FormItem labelContent={<Label showColon>Type</Label>}  >
+              {isEditMode ? (<Select value={pr_type} valueState={errors.pr_type && errors.pr_type != null ? "Negative" : "None"} onChange={(e) => setPrType(e.target.value)}>
+                <Option value="NB"> NB (Standard Purchase Requisition) </Option>
+                <Option value="NBS"> NBS (Standard Purchase Requisition) </Option>
+                <Option value="RV"> RV (Outline Agreement) </Option>
+                <Option value="ZNB">ZNB (Custom Purchase Requisition)</Option>
+                <div slot="valueStateMessage">{errors.pr_type}</div>
+              </Select>) : <Text>{requisition.pr_type_desc}</Text>}
+            </FormItem>
+            <FormItem labelContent={<Label showColon>Description</Label>}  >
+              {isEditMode ? <TextArea value={description} onChange={(e) => setDescription(e.target.value)} /> : <Text>{description}</Text>}
+            </FormItem>
+            <FormItem labelContent={<Label showColon>Created At</Label>}  >
+              <Text>{formatDate(requisition.created_at)}</Text>
+            </FormItem>
+            <FormItem labelContent={<Label showColon>Updated At</Label>}  >
+              <Text>{formatDate(requisition.updated_at)}</Text>
+            </FormItem>
+          </Form>
+        </ObjectPageSubSection>
+      </ObjectPageSection>
+
+      <ObjectPageSection
+        aria-label="Items"
+        id="items"
+        titleText="Items"
+      >
+        <ObjectPageSubSection titleText="" actions={
+          <div style={{ marginLeft: "auto", display: "flex" }}>
+            <Button design="Transparent" disabled={isItemEditMode} onClick={hanldeAddItem}>
+              Add Item
+            </Button>
+            {currentItemKey && !isItemEditMode ? <Button design="Transparent" onClick={handleToggleItemEditMode}>
+              Edit
+            </Button> : null}
+
+            {currentItemKey && isItemEditMode ? <Button design="Transparent" onClick={handleUpdateItem}>
+              Save
+            </Button> : null}
+
+            {currentItemKey && isItemEditMode ? <Button design="Transparent" onClick={handleCancelItem}>
+              Cancel
+            </Button> : null}
+          </div>
+        }>
+          <Table id="itemTableInDetails"
+            features={<TableSelection mode="Single" slot="features" onChange={handleItemSelection} selected={(typeof currentItemKey === 'string' || currentItemKey instanceof String) ? currentItemKey : " "} />}
+            headerRow={<TableHeaderRow sticky><TableHeaderCell minWidth="200px" width="200px"><span>Item Name</span></TableHeaderCell>
+              <TableHeaderCell minWidth="200px"><span>Quantity</span></TableHeaderCell>
+              <TableHeaderCell minWidth="200px"><span>Unit Price</span></TableHeaderCell>
+              <TableHeaderCell maxWidth="200px" minWidth="100px"><span>Total Price</span></TableHeaderCell>
+              <TableHeaderCell minWidth="200px"><span>Notes</span></TableHeaderCell>
+            </TableHeaderRow>}
+          >
+
+            {items.map((row, index) => (
+              <TableRow rowKey={row.id}>
+                <TableCell>{currentItemKey === row.id && isItemEditMode ? <Input name="item_name" value={row.item_name} onChange={(event) => handleItemChange(index, event)} valueState={itemErrors.hasOwnProperty(`item_name[${row.id}]`) && itemErrors[`item_name[${row.id}]`] != null ? "Negative" : "None"}>
+                  <div slot="valueStateMessage">{itemErrors[`item_name[${row.id}]`]}</div>
+                </Input> : <span>{row.item_name}</span>}</TableCell>
+                <TableCell>{currentItemKey === row.id && isItemEditMode ? <Input name="quantity" value={row.quantity} onChange={(event) => handleItemChange(index, event)}></Input> : <span>{row.quantity}</span>}</TableCell>
+                <TableCell>{currentItemKey === row.id && isItemEditMode ? <Input name="unit_price" value={row.unit_price} onChange={(event) => handleItemChange(index, event)}></Input> : <span>${Number(row.unit_price || 0).toFixed(2)}</span>}</TableCell>
+                <TableCell>{currentItemKey === row.id && isItemEditMode ? <Input name="total_price" value={row.total_price} onChange={(event) => handleItemChange(index, event)}></Input> : <span>${Number(row.total_price || 0).toFixed(2)}</span>}</TableCell>
+                <TableCell>{currentItemKey === row.id && isItemEditMode ? <Input name="notes" value={row.notes} onChange={(event) => handleItemChange(index, event)}></Input> : <span>{row.notes}</span>}</TableCell>
+              </TableRow>
+            ))}
+          </Table>
+        </ObjectPageSubSection>
+      </ObjectPageSection>
+
+    </ObjectPage>
   );
 }
 

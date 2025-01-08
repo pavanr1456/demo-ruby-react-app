@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Bar, Breadcrumbs, BreadcrumbsItem, Button, Form, FormItem, Input, Label, ObjectPage, ObjectPageSection, ObjectPageSubSection, ObjectPageTitle, Option, Select, Table, TableCell, TableHeaderCell, TableHeaderRow, TableRow, TextArea } from "@ui5/webcomponents-react";
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 const CREATE_REQ_API_URL = BASE_URL + "/api/v1/purchase_requisitions";
@@ -13,11 +14,8 @@ function NewPurchaseRequisition() {
   const [items, setItems] = useState([{ item_name: "", quantity: 1, unit_price: 0, notes: "" }]);
   const [errors, setErrors] = useState({});
   const [generalErrors, setGeneralErrors] = useState([]);
+  const [itemErrors, setItemErrors] = useState([]);
   const navigate = useNavigate();
-
-  const handleAddItem = () => {
-    setItems([...items, { item_name: "", quantity: 1, unit_price: 0, notes: "" }]);
-  };
 
   const handleItemChange = (index, e) => {
     const updatedItems = [...items];
@@ -25,13 +23,7 @@ function NewPurchaseRequisition() {
     setItems(updatedItems);
   };
 
-  const handleDeleteItem = (index) => {
-    const updatedItems = items.filter((_, itemIndex) => itemIndex !== index);
-    setItems(updatedItems);
-  };
-
   const handleSubmit = (e) => {
-    e.preventDefault();
 
     const newRequisition = {
       pr_type: prType,
@@ -56,16 +48,21 @@ function NewPurchaseRequisition() {
 
           // Separate general errors and field-specific errors
           setErrors({
-            pr_type: errorData.pr_type || null,
-            description: errorData.description || null,
+            pr_type: errorData.pr_type?.length > 0 ? errorData.pr_type[0] : null,
+            description: errorData.description?.length > 0 ? errorData.description[0] : null,
           });
-          setGeneralErrors(
-            Object.entries(errorData)
-              .filter(([key]) => key !== "pr_type" && key !== "description")
-              .map(([key, messages]) => `${key}: ${messages.join(", ")}`)
-          );
+          const itemLevelError = {};
+
+          Object.entries(errorData).forEach(([key, value]) => {
+            // Extract the index from the key using regex
+            const match = key.match(/purchase_requisition_items\[(\d+)\]\.item_name/);
+            if (match) {
+              const index = match[1]; // Extract the index
+              itemLevelError[`item_name[${index}]`] = value[0]; // Add the error message
+            }
+          });
+          setItemErrors(itemLevelError);
         }
-        console.error("Error creating requisition:", error);
       });
   };
 
@@ -73,145 +70,87 @@ function NewPurchaseRequisition() {
     navigate("/");
   };
 
+  const hanldeAddItem = () => {
+    setItems([...items, { item_name: "", quantity: 1, unit_price: 0, notes: "" }]);
+  };
+
   return (
-    <div className="p-8">
-      <div className="bg-white shadow-md rounded p-6">
-        <h1 className="text-2xl font-bold mb-4">Create New Purchase Requisition</h1>
-        <form onSubmit={handleSubmit}>
-          {/* General Errors */}
-          {generalErrors.length > 0 && (
-            <div className="mb-4 p-4 bg-red-100 text-red-600 rounded">
-              <ul>
-                {generalErrors.map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+    <ObjectPage
+      footerArea={<Bar design="FloatingFooter" endContent={<><Button design="Emphasized" onClick={handleSubmit}>Accept</Button><Button design="Default" onClick={handleCancel}>Cancel</Button></>} />}
+      mode="Default"
+      selectedSectionId="details"
+      style={{
+        height: '1000px'
+      }}
+      titleArea={<ObjectPageTitle breadcrumbs={<Breadcrumbs onItemClick={() => { navigate(-1) }}><BreadcrumbsItem onClick={() => { navigate(-1) }}>Home</BreadcrumbsItem><BreadcrumbsItem> </BreadcrumbsItem></Breadcrumbs>} header="New Purchase Requisition" ></ObjectPageTitle>}
+    >
+      <ObjectPageSection
+        aria-label="Details"
+        id="details"
+        titleText="Details"
+      >
+        <ObjectPageSubSection titleText="Details">
+          <Form
+            labelSpan="S12 M12 L12 XL12"
+            layout="S1 M2 L3 XL3"
+          >
+            <FormItem labelContent={<Label showColon>Type</Label>}  >
+              <Select value={prType} valueState={errors.pr_type && errors.pr_type != null ? "Negative" : "None"} onChange={(e) => setPrType(e.target.value)}>
+                <Option value="">Select Type</Option>
+                <Option value="NB"> NB (Standard Purchase Requisition) </Option>
+                <Option value="NBS"> NBS (Standard Purchase Requisition) </Option>
+                <Option value="RV"> RV (Outline Agreement) </Option>
+                <Option value="ZNB">ZNB (Custom Purchase Requisition)</Option>
+                <div slot="valueStateMessage">{errors.pr_type}</div>
+              </Select>
+            </FormItem>
+            <FormItem labelContent={<Label showColon>Description</Label>}  >
+              <TextArea value={description} valueState={errors.description && errors.description != null ? "Negative" : "None"} valueStateMessage={errors.description} onChange={(e) => setDescription(e.target.value)} >
+                <div slot="valueStateMessage">{errors.description}</div>
+              </TextArea>
+            </FormItem>
+          </Form>
+        </ObjectPageSubSection>
+      </ObjectPageSection>
 
-          {/* PR Type */}
-          <div className="mb-4">
-            <label htmlFor="prType" className="block text-sm font-medium">
-              Type
-            </label>
-            <select
-              id="prType"
-              value={prType}
-              onChange={(e) => setPrType(e.target.value)}
-              className={`w-full px-4 py-2 border ${errors.pr_type ? "border-red-500" : "border-gray-300"} rounded-md`}
-              required
-            >
-              <option value="">Select Type</option>
-              <option value="NB">NB (Standard Purchase Requisition)</option>
-              <option value="NBS">NBS (Standard Purchase Requisition)</option>
-              <option value="RV">RV (Outline Agreement)</option>
-              <option value="ZNB">ZNB (Custom Purchase Requisition)</option>
-            </select>
-            {errors.pr_type && <p className="text-red-500 text-sm">{errors.pr_type[0]}</p>}
-          </div>
-
-          {/* Description */}
-          <div className="mb-4">
-            <label htmlFor="description" className="block text-sm font-medium">
-              Description
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className={`w-full px-4 py-2 border rounded-md ${errors.description ? "border-red-500" : "border-gray-300"}`}
-              rows="4"
-              required
-            ></textarea>
-            {errors.description && <p className="text-red-500 text-sm">{errors.description[0]}</p>}
-          </div>
-
-          {/* Items */}
-          <div className="mb-4">
-            <h2 className="text-xl font-medium mb-2">Items</h2>
-            {items.map((item, index) => (
-              <div key={index} className="mb-4 flex gap-4 items-center">
-                <div className="w-1/4">
-                  <label className="block text-sm font-medium">Item Name</label>
-                  <input
-                    type="text"
-                    name="item_name"
-                    value={item.item_name}
-                    onChange={(e) => handleItemChange(index, e)}
-                    className="w-full px-4 py-2 border rounded-md"
-                    required
-                  />
-                </div>
-                <div className="w-1/6">
-                  <label className="block text-sm font-medium">Quantity</label>
-                  <input
-                    type="number"
-                    name="quantity"
-                    value={item.quantity}
-                    onChange={(e) => handleItemChange(index, e)}
-                    className="w-full px-4 py-2 border rounded-md"
-                    min="1"
-                    required
-                  />
-                </div>
-                <div className="w-1/6">
-                  <label className="block text-sm font-medium">Unit Price</label>
-                  <input
-                    type="number"
-                    name="unit_price"
-                    value={item.unit_price}
-                    onChange={(e) => handleItemChange(index, e)}
-                    className="w-full px-4 py-2 border rounded-md"
-                    min="0"
-                    step="0.01"
-                    required
-                  />
-                </div>
-                <div className="w-1/3">
-                  <label className="block text-sm font-medium">Notes</label>
-                  <input
-                    type="text"
-                    name="notes"
-                    value={item.notes}
-                    onChange={(e) => handleItemChange(index, e)}
-                    className="w-full px-4 py-2 border rounded-md"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteItem(index)}
-                  className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={handleAddItem}
-              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-            >
+      <ObjectPageSection
+        aria-label="Items"
+        id="items"
+        titleText="Items"
+      >
+        <ObjectPageSubSection titleText="" actions={
+          <div style={{ marginLeft: "auto", display: "flex" }}>
+            <Button design="Transparent" onClick={hanldeAddItem}>
               Add Item
-            </button>
+            </Button>
           </div>
+        }>
+          <Table id="itemTableInDetails"
+            headerRow={<TableHeaderRow sticky><TableHeaderCell minWidth="200px" width="200px"><span>Item Name</span></TableHeaderCell>
+              <TableHeaderCell minWidth="200px"><span>Quantity</span></TableHeaderCell>
+              <TableHeaderCell minWidth="200px"><span>Unit Price</span></TableHeaderCell>
+              <TableHeaderCell maxWidth="200px" minWidth="100px"><span>Total Price</span></TableHeaderCell>
+              <TableHeaderCell minWidth="200px"><span>Notes</span></TableHeaderCell>
+            </TableHeaderRow>}
+          >
 
-          {/* Submit and Cancel Buttons */}
-          <div className="mt-6">
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-              Submit
-            </button>
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="ml-6 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+            {items.map((row, index) => (
+              <TableRow rowKey={row.id}>
+                <TableCell><Input name="item_name" value={row.item_name} onChange={(event) => handleItemChange(index, event)} valueState={itemErrors.hasOwnProperty(`item_name[${index}]`) && itemErrors[`item_name[${index}]`] != null ? "Negative" : "None"}>
+                  <div slot="valueStateMessage">{itemErrors[`item_name[${index}]`]}</div>
+                </Input></TableCell>
+                <TableCell><Input name="quantity" value={row.quantity} onChange={(event) => handleItemChange(index, event)}></Input></TableCell>
+                <TableCell><Input name="unit_price" value={row.unit_price} onChange={(event) => handleItemChange(index, event)}></Input></TableCell>
+                <TableCell><Input name="total_price" value={row.total_price} onChange={(event) => handleItemChange(index, event)}></Input></TableCell>
+                <TableCell><Input name="notes" value={row.notes} onChange={(event) => handleItemChange(index, event)}></Input> </TableCell>
+              </TableRow>
+            ))}
+          </Table>
+        </ObjectPageSubSection>
+      </ObjectPageSection>
+
+    </ObjectPage>);
+
 }
 
 export default NewPurchaseRequisition;

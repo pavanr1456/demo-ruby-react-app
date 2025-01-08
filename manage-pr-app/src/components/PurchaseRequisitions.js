@@ -2,7 +2,20 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { TextField } from "@mui/material"; // Import Material-UI TextField component
+import { Title } from '@ui5/webcomponents-react';
+import {
+  Button
+} from '@ui5/webcomponents-react';
+import { Input } from '@ui5/webcomponents-react';
+import {
+  Table,
+  TableRow,
+  TableCell,
+  TableHeaderRow,
+  TableHeaderCell
+} from '@ui5/webcomponents-react';
+import { FilterBar } from '@ui5/webcomponents-react';
+import { Page } from '@ui5/webcomponents-react';
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
 const GET_REQ_API_URL = BASE_URL + "/api/v1/purchase_requisitions";
@@ -41,69 +54,65 @@ function PurchaseRequisitions() {
   );
 
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Purchase Requisitions</h1>
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+    <Page
+      backgroundDesign="Solid"
+      style={{
+        height: '1000px',
+        border: '0px'
+      }}
+    >
+
+      <FilterBar
+        filterContainerWidth="13.125rem"
+        header={<Title level="H2" size="H4">Purchase Requisitions</Title>}
+        onAfterFiltersDialogOpen={function Ki() { }}
+        onClear={function Ki() { }}
+        showGoOnFB="true"
+        onGo={(e) => { const searchField = document.getElementById("searchField"); setSearchQuery(searchField.value); }}
+        search={<Input id="searchField" value={searchQuery} />}
+      />
+
+      <div style={{ display: "flex", justifyContent: "flex-end", padding: "10px 20px" }}>
+        <Button
+          design="Default"
           onClick={() => navigate("/pr/new")}
         >
           New Purchase Requisition
-        </button>
-      </div>
-
-      {/* Search Bar */}
-      <div className="mb-4">
-        <TextField
-          label="Search"
-          variant="outlined"
-          fullWidth
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+        </Button>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="table-auto w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-4 py-2">ID</th>
-              <th className="border border-gray-300 px-4 py-2">Type</th>
-              <th className="border border-gray-300 px-4 py-2">Description</th>
-              <th className="border border-gray-300 px-4 py-2">Created At</th>
-              <th className="border border-gray-300 px-4 py-2">Updated At</th>
-              <th className="border border-gray-300 px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRequisitions.map((row) => (
-              <tr key={row.id} className="hover:bg-gray-50">
-                <td className="border border-gray-300 px-4 py-2">{row.id}</td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {row.pr_type}{" "}
-                  {row.pr_type_desc && (
-                    <span className="text-sm text-gray-500">({row.pr_type_desc})</span>
-                  )}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">{row.description}</td>
-                <td className="border border-gray-300 px-4 py-2">{formatDate(row.created_at)}</td>
-                <td className="border border-gray-300 px-4 py-2">{formatDate(row.updated_at)}</td>
-                <td className="border border-gray-300 px-4 py-2">
-                  <button
-                    className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
-                    onClick={() => navigate(`/pr/${row.id}`)}
-                  >
-                    View/Edit
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <Table
+          headerRow={<TableHeaderRow sticky><TableHeaderCell minWidth="200px" width="200px"><span>ID</span></TableHeaderCell>
+            <TableHeaderCell minWidth="200px"><span>Type</span></TableHeaderCell>
+            <TableHeaderCell minWidth="200px"><span>Description</span></TableHeaderCell>
+            <TableHeaderCell maxWidth="200px" minWidth="100px"><span>Created At</span></TableHeaderCell>
+            <TableHeaderCell minWidth="200px"><span>Update At</span></TableHeaderCell>
+          </TableHeaderRow>}
+          onRowClick={(oEvent) => {
+            const row = oEvent.detail.row;
+            const cells = row.children;
+            const cellValues = Array.from(cells).map(cell => cell.textContent);
+            navigate(`/pr/${cellValues[0]}`)
+          }}
+        >
+
+          {filteredRequisitions.map((row) => (
+            <TableRow key={row.id} interactive="true">
+              <TableCell><span>{row.id}</span></TableCell>
+              <TableCell><span>{row.pr_type}{" "}
+                {row.pr_type_desc && (
+                  <span className="text-sm text-gray-500">({row.pr_type_desc})</span>
+                )}</span></TableCell>
+              <TableCell><span>{row.description}</span></TableCell>
+              <TableCell><span>{formatDate(row.created_at)}</span></TableCell>
+              <TableCell><span>{formatDate(row.updated_at)}</span></TableCell>
+            </TableRow>
+          ))}
+        </Table>
       </div>
-    </div>
+    </Page>
   );
 }
 
