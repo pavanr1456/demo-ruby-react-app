@@ -1,10 +1,9 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
-# PurchaseRequisition.create(pr_type: 'NB', description: 'seeded pr')
+
+PurchaseRequisition.create!(pr_type: 'NB', description: 'Apple Purachase Requisition', purchase_requisition_items_attributes: [
+  { item_name: "PHone 16", quantity: 10, unit_price: 1000.0, total_price: 10000.0, notes: "With charger" },
+  { item_name: "Macbook Pro M3", quantity: 10, unit_price: 1000.0, total_price: 10000.0, notes: "With charger" }
+])
+
+PurchaseRequisition.create!(pr_type: 'NB', description: 'Samsung Purachase Requisition', purchase_requisition_items_attributes: [
+  { item_name: "Samsung S23", quantity: 10, unit_price: 1000.0, total_price: 10000.0, notes: "" }
+])

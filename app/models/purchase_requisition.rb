@@ -1,8 +1,8 @@
 class PurchaseRequisition < ApplicationRecord
-  has_many :purchase_requisition_items, dependent: :destroy
+  has_many :purchase_requisition_items, dependent: :destroy, index_errors: true
   validates :purchase_requisition_items, presence: { message: "must have at least one item" }
   # Only allow specific type
-  validates :pr_type, inclusion: { in: [ "NB", "NBS", "RV", "ZNB" ], message: "Undefined purchase requisition type" }
+  validates :pr_type, inclusion: { in: [ "NB", "NBS", "RV", "ZNB" ], message: "Purchase Requisition Type is mandatory" }
   validate :pr_type_not_znbs
   validates :description, length: { minimum: 10, message: "Description must be at least 10 characters long" }
 
