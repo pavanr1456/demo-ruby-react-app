@@ -2,6 +2,7 @@ class Api::V1::PurchaseRequisitionItemsController < ApplicationController
   before_action :set_purchase_requisition, only: [ :index, :create ]
   before_action :set_item, only: [ :show, :update, :destroy ]
 
+
   # GET /purchase_requisitions/:purchase_requisition_id/items
   def index
     items = @purchase_requisition.purchase_requisition_items

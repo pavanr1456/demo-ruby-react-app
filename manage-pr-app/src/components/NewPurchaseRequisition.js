@@ -128,8 +128,8 @@ function NewPurchaseRequisition() {
           <Table id="itemTableInDetails"
             headerRow={<TableHeaderRow sticky><TableHeaderCell minWidth="200px" width="200px"><span>Item Name</span></TableHeaderCell>
               <TableHeaderCell minWidth="200px"><span>Quantity</span></TableHeaderCell>
-              <TableHeaderCell minWidth="200px"><span>Unit Price</span></TableHeaderCell>
-              <TableHeaderCell maxWidth="200px" minWidth="100px"><span>Total Price</span></TableHeaderCell>
+              <TableHeaderCell minWidth="200px"><span>Unit Price($)</span></TableHeaderCell>
+              {/* <TableHeaderCell maxWidth="200px" minWidth="100px"><span>Total Price</span></TableHeaderCell> */}
               <TableHeaderCell minWidth="200px"><span>Notes</span></TableHeaderCell>
             </TableHeaderRow>}
           >
@@ -141,7 +141,7 @@ function NewPurchaseRequisition() {
                 </Input></TableCell>
                 <TableCell><Input name="quantity" value={row.quantity} onChange={(event) => handleItemChange(index, event)}></Input></TableCell>
                 <TableCell><Input name="unit_price" value={row.unit_price} onChange={(event) => handleItemChange(index, event)}></Input></TableCell>
-                <TableCell><Input name="total_price" value={row.total_price} onChange={(event) => handleItemChange(index, event)}></Input></TableCell>
+                {/* <TableCell><Input name="total_price" value={row.total_price} onChange={(event) => handleItemChange(index, event)}></Input></TableCell> */}
                 <TableCell><Input name="notes" value={row.notes} onChange={(event) => handleItemChange(index, event)}></Input> </TableCell>
               </TableRow>
             ))}

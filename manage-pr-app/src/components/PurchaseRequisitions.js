@@ -62,15 +62,21 @@ function PurchaseRequisitions() {
       }}
     >
 
-      <FilterBar
-        filterContainerWidth="13.125rem"
-        header={<Title level="H2" size="H4">Purchase Requisitions</Title>}
-        onAfterFiltersDialogOpen={function Ki() { }}
-        onClear={function Ki() { }}
-        showGoOnFB="true"
-        onGo={(e) => { const searchField = document.getElementById("searchField"); setSearchQuery(searchField.value); }}
-        search={<Input id="searchField" value={searchQuery} />}
-      />
+<FilterBar
+  filterContainerWidth="13.125rem"
+  header={<Title level="H2" size="H4">Purchase Requisitions</Title>}
+  onAfterFiltersDialogOpen={function Ki() { }}
+  onClear={() => setSearchQuery("")} 
+  showGoOnFB={true}
+  onGo={() => {}}
+  search={
+    <Input
+      id="searchField"
+      value={searchQuery}
+      onInput={(e) => setSearchQuery(e.target.value)} 
+    />
+  }
+/>
 
       <div style={{ display: "flex", justifyContent: "flex-end", padding: "10px 20px" }}>
         <Button
