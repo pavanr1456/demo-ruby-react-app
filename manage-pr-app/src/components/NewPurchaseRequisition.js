@@ -17,18 +17,9 @@ function NewPurchaseRequisition() {
   const [itemErrors, setItemErrors] = useState([]);
   const navigate = useNavigate();
 
-  const handleAddItem = () => {
-    setItems([...items, { item_name: "", quantity: 1, unit_price: 0, notes: "" }]);
-  };
-
   const handleItemChange = (index, e) => {
     const updatedItems = [...items];
     updatedItems[index][e.target.name] = e.target.value;
-    setItems(updatedItems);
-  };
-
-  const handleDeleteItem = (index) => {
-    const updatedItems = items.filter((_, itemIndex) => itemIndex !== index);
     setItems(updatedItems);
   };
 
