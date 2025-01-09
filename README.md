@@ -1,19 +1,48 @@
-# demo-ruby-react-app
-Demo app using ruby on rails and react
+# Manage Purchase Requisition
+Manage Purchase Requisition application that enable users to View, Create and Update requisitions.
 
-The project is deployed to Render.<br>
-API is built using Rails, uses postgres db.<br>
-UI is built using React.<br>
+**Technical Details:**
 
-Production build for react is done via npm run build --prefix manage-pr-app <br>
-move built file to public folder using  rsync -av --ignore-existing manage-pr-app/build/ public/ <br>
-`npm run build --prefix manage-pr-app && rsync -av --ignore-existing manage-pr-app/build/ public/`
+- Backend: Rails 
+- Database: Postgres
+- Frontend: ReactJs
+- Styling:  UI5 web components for React
 
-to generate tailwind css, run the below command and copy the generated content to index.css
-This is because tailewind build is not natively added into static files
-`npx tailwindcss build src/index.css -o dist/tailwind.css`
+**Deployment Strategy:**
 
-every change in UI should be built and committed so it is served in Render.<br>
-Update service in https://dashboard.render.com/web/srv-ctlpha52ng1s73b86ctg/deploys/dep-ctlq3mrtq21c73f4kmh0 <br>
-Render app -> https://demo-ruby-react-app.onrender.com/ 
+This app is deployed to [Render](https://render.com/), a cloud application platform.
+
+**Features:**
+
+- Upon opening the app, user views the list of Purchase Requisitions, From this page, user can
+
+  - Create a new Requisition
+
+  - Delete an existing Requisition
+
+  - Search the requisitions
+
+  - Navigate to details of requisition
+
+- Users can add items to the new items to existing Requisitions
+
+- **Validations:**
+
+  - If user tries to create a requisition with Description less than 10 characters then an error is thrown and field is highlighted
+  - If user tries to create a requisition with type 'ZNB' then an authorization error is shown.
+
+- **Determinations:**
+
+  - Based on requisition type, the description is determined and saved in DB
+  - Based on quantity and unit price, the total price is calculated.
+
+
+
+**Note:**
+
+- Before merging to main, below command should be executed to build the react application. The initial route from rails will load the index page of react app.
+
+  `npm run build --prefix manage-pr-app && rsync -av --ignore-existing manage-pr-app/build/ public/`
+
+- The changes merged to main will automatically trigger the deployment on render.
 
