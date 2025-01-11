@@ -38,7 +38,7 @@ This app is deployed to [Render](https://render.com/), a cloud application platf
 
 **Architecture**
 
-![alt text](ArchitectureFlow.jpg)
+![architecture](ArchitectureFlow.jpg)
 
 **Note for contribution:**
 
