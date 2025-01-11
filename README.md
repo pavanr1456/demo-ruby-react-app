@@ -8,9 +8,13 @@ Manage Purchase Requisition application that enable users to View, Create and Up
 - Frontend: ReactJs
 - Styling:  UI5 web components for React
 
+**Architecture**
+
+![alt text](ArchitectureFlow.jpg)
+
 **Deployment Strategy:**
 
-This app is deployed to [Render](https://render.com/), a cloud application platform.
+This app is deployed to [Render](https://render.com/), a cloud application platform which provides a free database instance.
 
 **Features:**
 
