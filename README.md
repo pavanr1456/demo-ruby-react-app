@@ -8,10 +8,6 @@ Manage Purchase Requisition application that enable users to View, Create and Up
 - Frontend: ReactJs
 - Styling:  UI5 web components for React
 
-**Architecture**
-
-![alt text](ArchitectureFlow.jpg)
-
 **Deployment Strategy:**
 
 This app is deployed to [Render](https://render.com/), a cloud application platform which provides a free database instance.
@@ -40,7 +36,9 @@ This app is deployed to [Render](https://render.com/), a cloud application platf
   - Based on requisition type, the description is determined and saved in DB
   - Based on quantity and unit price, the total price is calculated.
 
+**Architecture**
 
+![alt text](ArchitectureFlow.jpg)
 
 **Note for contribution:**
 
@@ -49,4 +47,3 @@ This app is deployed to [Render](https://render.com/), a cloud application platf
   `npm run build --prefix manage-pr-app && rsync -av --ignore-existing manage-pr-app/build/ public/`
 
 - The changes merged to main will automatically trigger the deployment on render.
-
