@@ -42,7 +42,7 @@ This app is deployed to [Render](https://render.com/), a cloud application platf
 
 
 
-**Note:**
+**Note for contribution:**
 
 - Before merging to main, below command should be executed to build the react application. The initial route from rails will load the index page of react app.
 
