@@ -27,7 +27,7 @@ This app is deployed to [Render](https://render.com/), a cloud application platf
 
   - Navigate to details of requisition
 
-- Users can add items to the new items to existing Requisitions
+- Users can add new items to existing Requisitions
 
 - **Validations:**
 
