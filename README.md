@@ -2,6 +2,7 @@
 Manage Purchase Requisition application that enable users to View, Create and Update requisitions.
 
 **Demo:**
+
 ![demo](demo/demo.gif)
 
 **Technical Details:**
